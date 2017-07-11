@@ -1,0 +1,30 @@
+{
+  "name": "mood-to-eth",
+  "version": "1.0.0",
+  "description": "parses mood api and writes it to eth",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@akanass/rx-http-request": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.10",
+    "tslint": "^5.0.0",
+    "typescript": "^2.4.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omni-resources/mood-to-eth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/omni-resources/mood-to-eth/issues"
+  },
+  "homepage": "https://github.com/omni-resources/mood-to-eth#readme"
+}
