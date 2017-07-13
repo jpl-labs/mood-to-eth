@@ -1,8 +1,8 @@
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
 import { RxHR, RxHttpRequestResponse } from "@akanass/rx-http-request";
-import 'rxjs/add/operator/mergeMap';
+import "rxjs/add/operator/mergeMap";
 
-import { PlayerStatus, AudioSong } from "../models/PlayerStatus"
+import { PlayerStatus, AudioSong } from "../models/PlayerStatus";
 
 export class MoodPlayer {
 
@@ -11,10 +11,10 @@ export class MoodPlayer {
     }
 
     public onSongChange(): Observable<AudioSong> {
-        var j = RxHR.jar()
+        const j = RxHR.jar();
 
         return RxHR.post(`${this.uri}/login`, {
-            form: { user: 'admin', password: '23646' },
+            form: { user: "admin", password: "23646" },
             strictSSL: false,
             jar: j
         }).mergeMap(
@@ -29,7 +29,7 @@ export class MoodPlayer {
                     }))
                     .map((response: RxHttpRequestResponse): PlayerStatus => response.body)
                     .map((playerStatus: PlayerStatus): AudioSong => playerStatus.data.currentAudioSong)
-                    .distinctUntilKeyChanged('id')
+                    .distinctUntilKeyChanged("id")
             );
     }
 
