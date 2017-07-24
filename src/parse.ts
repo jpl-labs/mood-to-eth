@@ -1,15 +1,14 @@
-import { PlayerStatus, AudioSong } from "./models/PlayerStatus";
+import { Song } from "./models/PlayerStatus";
 import { MoodPlayer } from "./services/MoodPlayer";
 
 import { Environment } from "./environment";
 
-const Web3 = require("web3");
 
-import * as wagerArtifacts from "../node_modules/tc2017-contract-artifacts/Wager.json";
+import * as Web3 from "web3";
+
+import { Wager } from "tc2017-contract-artifacts";
 
 // import { Contract, Network } from "tc2017-contract-artifacts";
-
-// const wagerContract: Contract = wagerArtifacts as any;
 
 const contract = require("truffle-contract");
 
@@ -19,18 +18,19 @@ const thatConfProvider = new Web3.providers.HttpProvider(Environment.web3Provide
 
 console.log("Connecting to blockchain...");
 // const web3 = new Web3();
-const web3 = new Web3(thatConfProvider);
+const web3 = new Web3();
 web3.setProvider(thatConfProvider);
+
 const balance = web3.eth.getBalance(web3.eth.coinbase);
 console.log(balance.toString());
 
-const Wager = contract(wagerArtifacts);
+const wagerContract = contract(Wager);
 
-Wager.setProvider(thatConfProvider);
+wagerContract.setProvider(thatConfProvider);
 
 moodPlayer.onSongChange().subscribe(song => {
     console.log(song);
-    Wager.deployed()
+    wagerContract.deployed()
         .then((instance: any) => {
             web3.personal.unlockAccount(Environment.genesisAddress, Environment.genesisPassword, 2);
             instance.endRound(web3.toHex(song.artist), web3.toHex(JSON.stringify(song)), {

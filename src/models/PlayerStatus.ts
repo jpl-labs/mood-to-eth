@@ -1,4 +1,4 @@
-export interface AudioSong {
+export interface Song {
     album: string;
     allowFeedback: boolean;
     artist: string;
@@ -7,6 +7,12 @@ export interface AudioSong {
     id: string;
     sleep: boolean;
     title: string;
+}
+
+export interface Zone {
+    id: number;
+    name: string;
+    type: string;
 }
 
 export interface AudioStyle {
@@ -20,17 +26,6 @@ export interface AudioStyle {
     visible: boolean;
 }
 
-export interface VisualSong {
-    album: string;
-    allowFeedback: boolean;
-    artist: string;
-    cover: string;
-    feedback: string;
-    id: string;
-    sleep: boolean;
-    title: string;
-}
-
 export interface PlayerError {
     code: string;
     message: string;
@@ -41,13 +36,58 @@ export interface PlayerMessage {
     type: string;
 }
 
+export interface Status {
+    code: string;
+    operationId: number;
+    timestamp: number;
+}
+
+export interface Style {
+    allowDelete: boolean;
+    allowRename: boolean;
+    allowSkip: boolean;
+    hasAudio: boolean;
+    id: string;
+    name: string;
+    shared: boolean;
+    visible: boolean;
+}
+
+export interface Category {
+    category: string;
+    styles: Style[];
+}
+
+export interface GenreStationsData {
+    categories: Category[];
+    zoneId: number;
+}
+
+export interface ZoneData {
+    zoneId: number;
+}
+
+export interface ZonesData {
+    zones: Zone[];
+}
+
+export interface StationsData {
+    styles: Style[];
+    zoneId: number;
+}
+
+export interface SongsData {
+    songs: Song[];
+    zoneId: number;
+}
+
 export interface PlayerData {
     allowSkipBackward: boolean;
     allowSkipForward: boolean;
     connected: boolean;
-    currentAudioSong: AudioSong;
+    currentAudioSong: Song;
     currentAudioStyle: AudioStyle;
-    currentVisualSong: VisualSong;
+    currentVisualSong: Song;
     currentVisualStyle?: any;
     disableSkip: boolean;
     error: PlayerError;
@@ -59,14 +99,7 @@ export interface PlayerData {
     zoneId: number;
 }
 
-export interface Status {
-    code: string;
-    operationId: number;
-    timestamp: number;
-}
-
-export interface PlayerStatus {
-    data: PlayerData;
+export interface MoodResponse<T> {
+    data: T;
     status: Status;
 }
-

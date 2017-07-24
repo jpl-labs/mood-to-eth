@@ -8,11 +8,11 @@
   },
   "dependencies": {
     "@akanass/rx-http-request": "^2.4.0",
-    "web3": "^0.19.1"
+    "tc2017-contract-artifacts": "github:omni-resources/tc2017-contract-artifacts"
   },
   "devDependencies": {
     "@types/bignumber.js": "^4.0.2",
-    "@types/node": "^8.0.10",
+    "@types/node": "^8.0.14",
     "tslint": "^5.0.0",
     "typescript": "^2.4.1",
     "web3-typescript-typings": "0.0.11"
