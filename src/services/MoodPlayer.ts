@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 import { RxHR, RxHttpRequestResponse, RxCookieJar } from "@akanass/rx-http-request";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/map";
-import "rxjs/add/operator/interval";
+import "rxjs/add/observable/interval";
 
 import { PlayerData, MoodResponse, Song, GenreStationsData, ZoneData, StationsData, ZonesData, SongsData } from "../models/PlayerStatus";
 
@@ -18,7 +18,8 @@ export class MoodPlayer {
         RxHR.post(`${this.uri}/${path}`, {
             form: data,
             strictSSL: false,
-            jar: this.cookieJar
+            jar: this.cookieJar,
+            json: true
         })
 
     public sendCommand = <T>(command: string, data = {}): Observable<MoodResponse<T>> =>
