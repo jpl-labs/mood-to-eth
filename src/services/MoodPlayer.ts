@@ -1,6 +1,8 @@
 import { Observable } from "rxjs";
 import { RxHR, RxHttpRequestResponse, RxCookieJar } from "@akanass/rx-http-request";
 import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/interval";
 
 import { PlayerData, MoodResponse, Song, GenreStationsData, ZoneData, StationsData, ZonesData, SongsData } from "../models/PlayerStatus";
 
@@ -11,6 +13,20 @@ export class MoodPlayer {
     constructor(private uri: string, private user = "admin", private password = "23646") {
         this.cookieJar = RxHR.jar();
     }
+
+    public sendPost = (path: string, data: any): Observable<RxHttpRequestResponse> =>
+        RxHR.post(`${this.uri}/${path}`, {
+            form: data,
+            strictSSL: false,
+            jar: this.cookieJar
+        })
+
+    public sendCommand = <T>(command: string, data = {}): Observable<MoodResponse<T>> =>
+        this.sendPost(`cmd?cmd=${command}`, Object.assign({ zoneId: 1 }, data))
+            .map((response: RxHttpRequestResponse): MoodResponse<T> => response.body)
+
+    public login = (): Observable<RxHttpRequestResponse> =>
+        this.sendPost("login", { user: this.user, password: this.password })
 
     public onSongChange = (pollInterval: number = 1000): Observable<Song> =>
         this.login().mergeMap(
@@ -23,13 +39,6 @@ export class MoodPlayer {
                     .filter((song: Song): boolean => !!song.artist)
                     .distinctUntilKeyChanged("id")
         );
-
-    public login = (): Observable<RxHttpRequestResponse> =>
-        RxHR.post(`${this.uri}/login`, {
-            form: { user: this.user, password: this.password },
-            strictSSL: false,
-            jar: this.cookieJar
-        })
 
     public getStatus = (): Observable<MoodResponse<PlayerData>> =>
         this.sendCommand<PlayerData>("zone.getStatus")
@@ -52,7 +61,7 @@ export class MoodPlayer {
     public skipTrack = (): Observable<MoodResponse<ZoneData>> =>
         this.sendCommand<ZoneData>("zone.track.skip", { step: 1 })
 
-    public giveTrackFeedback = ( positive: boolean, songId: string): Observable<MoodResponse<ZoneData>> =>
+    public giveTrackFeedback = (positive: boolean, songId: string): Observable<MoodResponse<ZoneData>> =>
         this.sendCommand<ZoneData>("zone.track.feedback", { isPositive: positive, songId: songId })
 
     public resume = (): Observable<MoodResponse<ZoneData>> =>
@@ -63,11 +72,4 @@ export class MoodPlayer {
 
     public getStationHistory = (): Observable<MoodResponse<SongsData>> =>
         this.sendCommand<SongsData>("zone.station.getHistory")
-
-    public sendCommand = <T>(command: string, data = {}): Observable<MoodResponse<T>> =>
-        RxHR.post(`${this.uri}/cmd?cmd=${command}`, {
-            form: Object.assign({ zoneId: 1 }, data),
-            strictSSL: false,
-            jar: this.cookieJar
-        }).map((response: RxHttpRequestResponse): MoodResponse<T> => response.body)
 }
