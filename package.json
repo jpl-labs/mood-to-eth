@@ -10,7 +10,8 @@
     "@akanass/rx-http-request": "^2.4.0",
     "diacritics": "^1.3.0",
     "rxjs": "^5.4.2",
-    "tc2017-contract-artifacts": "github:omni-resources/tc2017-contract-artifacts"
+    "tc2017-contract-artifacts": "github:omni-resources/tc2017-contract-artifacts",
+    "truffle-contract": "^2.0.4"
   },
   "devDependencies": {
     "@types/bignumber.js": "^4.0.2",
