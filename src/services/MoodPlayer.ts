@@ -22,55 +22,55 @@ export class MoodPlayer {
             json: true
         })
 
-    public sendCommand = <T>(command: string, data = {}): Observable<MoodResponse<T>> =>
+    public sendCommand = <T>(command: string, data = {}): Observable<T> =>
         this.sendPost(`cmd?cmd=${command}`, Object.assign({ zoneId: 1 }, data))
-            .map((response: RxHttpRequestResponse): MoodResponse<T> => response.body)
+            .map((response: RxHttpRequestResponse): MoodResponse<T> => response.body).map(x => x.data)
 
     public login = (): Observable<RxHttpRequestResponse> =>
         this.sendPost("login", { user: this.user, password: this.password })
 
-    public onSongChange = (pollInterval: number = 1000): Observable<Song> =>
+    public onSongChange = (pollInterval: number = 1000): Observable<PlayerData> =>
         this.login().mergeMap(
-            (response: RxHttpRequestResponse): Observable<Song> =>
+            (response: RxHttpRequestResponse): Observable<PlayerData> =>
                 Observable
                     .interval(pollInterval)
                     .switchMap(this.getStatus)
-                    .filter((playerStatus: MoodResponse<PlayerData>): boolean => !!playerStatus.data)
-                    .map((playerStatus: MoodResponse<PlayerData>): Song => playerStatus.data.currentAudioSong)
-                    .filter((song: Song): boolean => !!song.artist)
-                    .distinctUntilKeyChanged("id")
+                    // .filter((playerStatus: MoodResponse<PlayerData>): boolean => !!playerStatus.data)
+                    // .map((playerStatus: PlayerData): Song => playerStatus.currentAudioSong)
+                    // .filter((song: Song): boolean => !!song.artist)
+                    .distinct((playerStatus: PlayerData): any => playerStatus.currentAudioSong.id)
         );
 
-    public getStatus = (): Observable<MoodResponse<PlayerData>> =>
+    public getStatus = (): Observable<PlayerData> =>
         this.sendCommand<PlayerData>("zone.getStatus")
 
-    public getGenreStations = (): Observable<MoodResponse<GenreStationsData>> =>
+    public getGenreStations = (): Observable<GenreStationsData> =>
         this.sendCommand<GenreStationsData>("zone.station.getGenre")
 
-    public getStations = (): Observable<MoodResponse<StationsData>> =>
+    public getStations = (): Observable<StationsData> =>
         this.sendCommand<StationsData>("zone.station.audio.getAll")
 
-    public getZones = (): Observable<MoodResponse<ZonesData>> =>
+    public getZones = (): Observable<ZonesData> =>
         this.sendCommand<ZonesData>("zone.getList")
 
-    public setStation = (stationId: number): Observable<MoodResponse<ZoneData>> =>
+    public setStation = (stationId: number): Observable<ZoneData> =>
         this.sendCommand<ZoneData>("zone.station.audio.set", { styleId: stationId })
 
-    public setVolume = (volume: number): Observable<MoodResponse<ZoneData>> =>
+    public setVolume = (volume: number): Observable<ZoneData> =>
         this.sendCommand<ZoneData>("zone.volume.set", { volume: volume })
 
-    public skipTrack = (): Observable<MoodResponse<ZoneData>> =>
+    public skipTrack = (): Observable<ZoneData> =>
         this.sendCommand<ZoneData>("zone.track.skip", { step: 1 })
 
-    public giveTrackFeedback = (positive: boolean, songId: string): Observable<MoodResponse<ZoneData>> =>
+    public giveTrackFeedback = (positive: boolean, songId: string): Observable<ZoneData> =>
         this.sendCommand<ZoneData>("zone.track.feedback", { isPositive: positive, songId: songId })
 
-    public resume = (): Observable<MoodResponse<ZoneData>> =>
+    public resume = (): Observable<ZoneData> =>
         this.sendCommand<ZoneData>("zone.track.resume")
 
-    public pause = (): Observable<MoodResponse<ZoneData>> =>
+    public pause = (): Observable<ZoneData> =>
         this.sendCommand<ZoneData>("zone.track.pause")
 
-    public getStationHistory = (): Observable<MoodResponse<SongsData>> =>
+    public getStationHistory = (): Observable<SongsData> =>
         this.sendCommand<SongsData>("zone.station.getHistory")
 }

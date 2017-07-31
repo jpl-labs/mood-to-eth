@@ -7,6 +7,7 @@ import { Environment } from "./environment";
 import * as Web3 from "web3";
 
 import { Wager } from "tc2017-contract-artifacts";
+const diacritics = require("diacritics");
 
 // import { Contract, Network } from "tc2017-contract-artifacts";
 
@@ -28,12 +29,19 @@ const wagerContract = contract(Wager);
 
 wagerContract.setProvider(thatConfProvider);
 
-moodPlayer.onSongChange().subscribe(song => {
-    console.log(song);
+moodPlayer.onSongChange().subscribe(playerData => {
     wagerContract.deployed()
         .then((instance: any) => {
             web3.personal.unlockAccount(Environment.genesisAddress, Environment.genesisPassword, 2);
-            instance.endRound(web3.toHex(song.artist), web3.toHex(JSON.stringify(song)), {
+
+            const key = diacritics.remove(playerData.currentAudioSong.artist).replace(/\s/g, "").toLowerCase();
+            console.log(`KEY: ${key}`);
+
+            const payload: any = playerData.currentAudioSong;
+            payload.style = playerData.currentAudioStyle.name;
+            console.log(payload);
+
+            instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
                 from: Environment.genesisAddress,
                 gas: 4712388
             });
