@@ -28,12 +28,16 @@ const wagerContract = contract(Wager);
 
 wagerContract.setProvider(thatConfProvider);
 
-moodPlayer.onSongChange().subscribe(song => {
-    console.log(song);
+moodPlayer.onSongChange().subscribe(playerData => {
     wagerContract.deployed()
         .then((instance: any) => {
             web3.personal.unlockAccount(Environment.genesisAddress, Environment.genesisPassword, 2);
-            instance.endRound(web3.toHex(song.artist), web3.toHex(JSON.stringify(song)), {
+
+            const payload: any = playerData.currentAudioSong;
+            payload.style = playerData.currentAudioStyle.name;
+            console.log(payload);
+
+            instance.endRound(web3.toHex(playerData.currentAudioSong.artist), web3.toHex(JSON.stringify(payload)), {
                 from: Environment.genesisAddress,
                 gas: 4712388
             });
