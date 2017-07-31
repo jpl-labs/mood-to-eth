@@ -34,7 +34,7 @@ moodPlayer.onSongChange().subscribe(playerData => {
         .then((instance: any) => {
             web3.personal.unlockAccount(Environment.genesisAddress, Environment.genesisPassword, 2);
 
-            const key = diacritics.remove(playerData.currentAudioSong.artist).replace(/\s/g, "").toLowerCase();
+            const key = diacritics.remove(playerData.currentAudioSong.artist).replace(/[^\w]/gi, "").toLowerCase();
             console.log(`KEY: ${key}`);
 
             const payload: any = playerData.currentAudioSong;
