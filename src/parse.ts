@@ -52,7 +52,9 @@ moodPlayer.onSongChange().subscribe(playerData => {
                 gas: 4712388
             });
 
-            blobService.startCopyBlob(playerData.currentAudioSong.cover, "albumart", `${playerData.currentAudioSong.artist}${playerData.currentAudioSong.album}`, (error, result, response) => {
+
+            const albumArtKey = diacritics.remove(`${playerData.currentAudioSong.artist}${playerData.currentAudioSong.album}`).replace(/[^\w]/gi, "").toLowerCase();
+            blobService.startCopyBlob(playerData.currentAudioSong.cover, "albumart", albumArtKey, (error, result, response) => {
                 console.log(error);
                 console.log(result);
                 console.log(response);
