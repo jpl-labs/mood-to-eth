@@ -3,6 +3,7 @@ import { MoodPlayer } from "./services/MoodPlayer";
 
 import { Environment } from "./environment";
 
+import { BlobService, TableService, TableUtilities } from "azure-storage";
 
 import * as Web3 from "web3";
 
@@ -16,6 +17,11 @@ const contract = require("truffle-contract");
 const moodPlayer = new MoodPlayer(Environment.moodUri);
 
 const thatConfProvider = new Web3.providers.HttpProvider(Environment.web3Provider);
+
+const entGen = TableUtilities.entityGenerator;
+
+const blobService = new BlobService(Environment.azureStorageConnectionString);
+const tableService = new TableService(Environment.azureStorageConnectionString);
 
 console.log("Connecting to blockchain...");
 // const web3 = new Web3();
@@ -44,6 +50,27 @@ moodPlayer.onSongChange().subscribe(playerData => {
             instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
                 from: Environment.genesisAddress,
                 gas: 4712388
+            });
+
+            blobService.startCopyBlob(playerData.currentAudioSong.cover, "albumart", `${playerData.currentAudioSong.artist}${playerData.currentAudioSong.album}`, (error, result, response) => {
+                console.log(error);
+                console.log(result);
+                console.log(response);
+            });
+
+            const song = {
+                PartitionKey: entGen.String("songs"),
+                RowKey: entGen.String(playerData.currentAudioSong.id),
+                artist: entGen.String(playerData.currentAudioSong.artist),
+                album: entGen.String(playerData.currentAudioSong.album),
+                title: entGen.String(playerData.currentAudioSong.title),
+                style: entGen.String(playerData.currentAudioStyle.name)
+            };
+
+            tableService.insertOrReplaceEntity("rockchain", song, function (error, result, response) {
+                console.log(error);
+                console.log(result);
+                console.log(response);
             });
         });
 
