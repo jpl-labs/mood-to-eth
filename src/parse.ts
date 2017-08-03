@@ -49,18 +49,19 @@ moodPlayer.onSongChange().subscribe(playerData => {
             payload.style = playerData.currentAudioStyle.name.replace(" Radio", "");
             console.log(payload);
 
-            instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
-                from: Environment.genesisAddress,
-                gas: 4712388
-            });
-
-
             const albumArtKey = diacritics.remove(`${playerData.currentAudioSong.artist}${playerData.currentAudioSong.album}`).replace(/[^\w]/gi, "").toLowerCase();
             blobService.startCopyBlob(playerData.currentAudioSong.cover, "albumart", albumArtKey, (error, result, response) => {
                 console.log(error);
                 console.log(result);
                 console.log(response);
+
+                instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
+                    from: Environment.genesisAddress,
+                    gas: 4712388
+                });
             });
+
+
 
             const song = {
                 PartitionKey: entGen.String("songs"),
