@@ -13,7 +13,9 @@ const diacritics = require("diacritics");
 // import { Contract, Network } from "tc2017-contract-artifacts";
 
 const contract = require("truffle-contract");
+const Filter = require('bad-words');
 
+const filter = new Filter();
 const moodPlayer = new MoodPlayer(Environment.moodUri);
 
 const thatConfProvider = new Web3.providers.HttpProvider(Environment.web3Provider);
@@ -40,11 +42,11 @@ moodPlayer.onSongChange().subscribe(playerData => {
         .then((instance: any) => {
             web3.personal.unlockAccount(Environment.genesisAddress, Environment.genesisPassword, 2);
 
-            const key = diacritics.remove(playerData.currentAudioSong.artist).replace(/[^\w]/gi, "").toLowerCase();
+            const key = filter.clean(diacritics.remove(playerData.currentAudioSong.artist).replace(/[^\w\s]/gi, '').toLowerCase());
             console.log(`KEY: ${key}`);
 
             const payload: any = playerData.currentAudioSong;
-            payload.style = playerData.currentAudioStyle.name;
+            payload.style = playerData.currentAudioStyle.name.replace(" Radio", "");
             console.log(payload);
 
             instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
