@@ -8,7 +8,10 @@ import { providers } from "web3";
 
 const diacritics = require("diacritics");
 const contract = require("truffle-contract");
+const Filter = require("bad-words");
 
+
+const filter = new Filter();
 const moodPlayer = new MoodPlayer(Environment.moodUri, Environment.moodUser, Environment.moodPassword);
 
 const entGen = TableUtilities.entityGenerator;
@@ -32,11 +35,11 @@ moodPlayer.onSongChange().subscribe(playerData => {
         .then((instance: any) => {
             web3.personal.unlockAccount(Environment.genesisAddress, Environment.genesisPassword, 2);
 
-            const key = diacritics.remove(playerData.currentAudioSong.artist).replace(/[^\w]/gi, "").toLowerCase();
+            const key = filter.clean(diacritics.remove(playerData.currentAudioSong.artist).replace(/[^\w\s]/gi, '').toLowerCase());
             console.log(`KEY: ${key}`);
 
             const payload: any = playerData.currentAudioSong;
-            payload.style = playerData.currentAudioStyle.name;
+            payload.style = playerData.currentAudioStyle.name.replace(" Radio", "");
             console.log(payload);
 
             const albumArtKey = diacritics.remove(`${playerData.currentAudioSong.artist}${playerData.currentAudioSong.album}`).replace(/[^\w]/gi, "").toLowerCase();
