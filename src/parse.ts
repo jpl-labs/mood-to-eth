@@ -1,32 +1,24 @@
 import { Song } from "./models/PlayerStatus";
 import { MoodPlayer } from "./services/MoodPlayer";
-
 import { Environment } from "./environment";
-
 import { BlobService, TableService, TableUtilities } from "azure-storage";
-
-import * as Web3 from "web3";
-
 import { Wager } from "tc2017-contract-artifacts";
+import * as Web3 from "web3";
+import { providers } from "web3";
+
 const diacritics = require("diacritics");
-
-// import { Contract, Network } from "tc2017-contract-artifacts";
-
 const contract = require("truffle-contract");
 
-const moodPlayer = new MoodPlayer(Environment.moodUri);
-
-const thatConfProvider = new Web3.providers.HttpProvider(Environment.web3Provider);
+const moodPlayer = new MoodPlayer(Environment.moodUri, Environment.moodUser, Environment.moodPassword);
 
 const entGen = TableUtilities.entityGenerator;
-
 const blobService = new BlobService(Environment.azureStorageConnectionString);
 const tableService = new TableService(Environment.azureStorageConnectionString);
 
 console.log("Connecting to blockchain...");
-// const web3 = new Web3();
-const web3 = new Web3();
-web3.setProvider(thatConfProvider);
+
+const thatConfProvider = new providers.HttpProvider(Environment.web3Provider);
+const web3 = new Web3(thatConfProvider);
 
 const balance = web3.eth.getBalance(web3.eth.coinbase);
 console.log(balance.toString());
@@ -49,17 +41,15 @@ moodPlayer.onSongChange().subscribe(playerData => {
 
             const albumArtKey = diacritics.remove(`${playerData.currentAudioSong.artist}${playerData.currentAudioSong.album}`).replace(/[^\w]/gi, "").toLowerCase();
             blobService.startCopyBlob(playerData.currentAudioSong.cover, "albumart", albumArtKey, (error, result, response) => {
-                console.log(error);
-                console.log(result);
-                console.log(response);
-
-                instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
-                    from: Environment.genesisAddress,
-                    gas: 4712388
-                });
+                if (!error) {
+                    instance.endRound(web3.toHex(key), web3.toHex(JSON.stringify(payload)), {
+                        from: Environment.genesisAddress,
+                        gas: 4712388
+                    });
+                } else {
+                    console.log(error);
+                }
             });
-
-
 
             const song = {
                 PartitionKey: entGen.String("songs"),
@@ -71,9 +61,9 @@ moodPlayer.onSongChange().subscribe(playerData => {
             };
 
             tableService.insertOrReplaceEntity("rockchain", song, function (error, result, response) {
-                console.log(error);
-                console.log(result);
-                console.log(response);
+                if (error) {
+                    console.log(error);
+                }
             });
         });
 
